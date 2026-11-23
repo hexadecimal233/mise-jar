@@ -1,32 +1,9 @@
 local http = require("http")
-local cmd = require("cmd")
 local log = require("log")
+local checksum = require("checksum")
 local util = require("util")
 
 local M = {}
-
-function M.digest(path, algo)
-    algo = algo or "sha256"
-    local out
-    if RUNTIME.osType == "darwin" then
-        local flag = algo == "sha512" and "-a 512" or algo == "sha1" and "-a 1" or "-a 256"
-        out = cmd.exec("shasum " .. flag .. ' "$FILE"', { env = { FILE = path } })
-    elseif RUNTIME.osType == "windows" then
-        local algorithm = algo == "sha512" and "SHA512" or algo == "sha1" and "SHA1" or "SHA256"
-        out = cmd.exec(
-            'powershell -NoProfile -Command "(Get-FileHash -Algorithm ' .. algorithm .. ' -LiteralPath $env:FILE).Hash"',
-            { env = { FILE = path } }
-        )
-    else
-        local binary = algo == "sha512" and "sha512sum" or algo == "sha1" and "sha1sum" or "sha256sum"
-        out = cmd.exec(binary .. ' "$FILE"', { env = { FILE = path } })
-    end
-    local hash = out:lower():match("(%x+)")
-    if not hash then
-        error("could not compute " .. algo .. " for " .. path)
-    end
-    return hash
-end
 
 local function parse_checksum_body(body, filename)
     for line in body:gmatch("[^\r\n]+") do
@@ -72,7 +49,8 @@ local function expected_checksum(ctx, release, asset)
     for _, checksum_name in ipairs(wanted) do
         for _, candidate in ipairs(release_assets) do
             if candidate.name == checksum_name then
-                local resp = http.get({ url = candidate.browser_download_url })
+                local url = candidate.api_url or candidate.browser_download_url
+                local resp = http.get({ url = url })
                 if resp.status_code == 200 then
                     local hash = parse_checksum_body(resp.body, asset.name)
                     if hash then
@@ -94,10 +72,7 @@ function M.verify(ctx, release, asset, path)
         log.debug("jar: no published checksum for " .. asset.name)
         return
     end
-    local actual = M.digest(path, expected.algo)
-    if actual ~= expected.hash then
-        error("checksum mismatch for " .. asset.name .. ": expected " .. expected.hash .. ", got " .. actual)
-    end
+    checksum.verify(path, expected.algo .. ":" .. expected.hash)
 end
 
 function M.verify_maven(ctx, spec, url, path)
@@ -127,10 +102,7 @@ function M.verify_maven(ctx, spec, url, path)
         log.debug("jar: no Maven checksum for " .. url)
         return
     end
-    local actual = M.digest(path, expected.algo)
-    if actual ~= expected.hash then
-        error("checksum mismatch for " .. path .. ": expected " .. expected.hash .. ", got " .. actual)
-    end
+    checksum.verify(path, expected.algo .. ":" .. expected.hash)
 end
 
 return M

@@ -83,15 +83,27 @@ local function resolve_token(opts)
     return nil
 end
 
+local function github_http_auth(url)
+    local host = host_of(url)
+    return host == "api.github.com" or (host:match("^api%.") ~= nil and host:match("%.ghe%.com$") ~= nil)
+end
+
 local function headers(opts)
     local result = { ["Accept"] = "application/json" }
     if opts.provider == "github" then
         result["Accept"] = "application/vnd.github+json"
         result["X-GitHub-Api-Version"] = "2022-11-28"
-    end
-    local token = resolve_token(opts)
-    if token then
-        result["Authorization"] = "Bearer " .. token
+        if not github_http_auth(opts.api_url) then
+            local token = resolve_token(opts)
+            if token then
+                result["Authorization"] = "Bearer " .. token
+            end
+        end
+    else
+        local token = resolve_token(opts)
+        if token then
+            result["Authorization"] = "Bearer " .. token
+        end
     end
     return result
 end
@@ -397,21 +409,31 @@ function M.download_asset(opts)
         error("path is required")
     end
 
-    local token = resolve_token(opts)
-    local api_origin = origin_of(opts.api_url)
     local browser_url = asset.browser_download_url
     local api_url = asset.api_url
     local url = browser_url
     local request_headers = {}
 
-    if token and api_url and origin_of(api_url) == api_origin then
-        url = api_url
-        request_headers["Authorization"] = "Bearer " .. token
-        if opts.provider == "github" then
+    if opts.provider == "github" then
+        if api_url then
+            url = api_url
             request_headers["Accept"] = "application/octet-stream"
+            if not github_http_auth(opts.api_url) then
+                local token = resolve_token(opts)
+                if token then
+                    request_headers["Authorization"] = "Bearer " .. token
+                end
+            end
         end
-    elseif token and origin_of(browser_url) == api_origin then
-        request_headers["Authorization"] = "Bearer " .. token
+    else
+        local token = resolve_token(opts)
+        local api_origin = origin_of(opts.api_url)
+        if token and api_url and origin_of(api_url) == api_origin then
+            url = api_url
+            request_headers["Authorization"] = "Bearer " .. token
+        elseif token and origin_of(browser_url) == api_origin then
+            request_headers["Authorization"] = "Bearer " .. token
+        end
     end
 
     http.download_file({ url = url, headers = request_headers }, opts.path)

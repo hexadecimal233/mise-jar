@@ -140,28 +140,28 @@ main_class = "com.example.Main"
 
 ## Options
 
-| Option                    | Meaning                                                         |
-| ------------------------- | --------------------------------------------------------------- |
-| `repo`                    | `owner/repo` on GitHub, GitLab, or Forgejo                      |
-| `maven`                   | Maven `group:artifact`; use instead of `repo`                   |
-| `maven_repo`              | Maven repository base; default `https://repo1.maven.org/maven2` |
-| `classifier`              | Maven classifier, such as `all-deps`                            |
-| `forge`                   | `github` (default), `gitlab`, or `forgejo`                      |
-| `api_url`                 | API base for a self-hosted forge                                |
-| `asset` / `asset_pattern` | Release asset name or glob                                      |
-| `matching`                | Substring filter used when `asset` is unset                     |
-| `jar`                     | JAR path or glob inside an archive                              |
-| `main_class`              | Entry point override                                            |
-| `command`                 | Installed command name; default is the tool name                |
-| `java`                    | Java executable                                                 |
-| `java_home`               | JDK home                                                        |
-| `java_opts`               | Default JVM options                                             |
-| `args`                    | Default CLI arguments; TOML array                               |
-| `strip_components`        | `0` or `1` when extracting an archive                           |
-| `checksum`                | `sha256:<hex>` or `sha512:<hex>`                                |
-| `version_prefix`          | Release tag prefix; unset strips `v`, `""` keeps tags           |
-| `prerelease`              | Include prereleases                                             |
-| `token`                   | API token for the selected forge                                |
+| Option                    | Meaning                                                              |
+| ------------------------- | -------------------------------------------------------------------- |
+| `repo`                    | `owner/repo` on GitHub, GitLab, or Forgejo                           |
+| `maven`                   | Maven `group:artifact`; use instead of `repo`                        |
+| `maven_repo`              | Maven repository base; default `https://repo1.maven.org/maven2`      |
+| `classifier`              | Maven classifier, such as `all-deps`                                 |
+| `forge`                   | `github` (default), `gitlab`, or `forgejo`                           |
+| `api_url`                 | API base for a self-hosted forge                                     |
+| `asset` / `asset_pattern` | Release asset name or glob                                           |
+| `matching`                | Substring filter used when `asset` is unset                          |
+| `jar`                     | JAR path or glob inside an archive                                   |
+| `main_class`              | Entry point override                                                 |
+| `command`                 | Installed command name; default is the tool name                     |
+| `java`                    | Java executable                                                      |
+| `java_home`               | JDK home                                                             |
+| `java_opts`               | Default JVM options                                                  |
+| `args`                    | Default CLI arguments; TOML array                                    |
+| `strip_components`        | `0` or `1` when extracting an archive                                |
+| `checksum`                | `sha256:<hex>` or `sha512:<hex>`                                     |
+| `version_prefix`          | Release tag prefix; unset strips `v`, `""` keeps tags                |
+| `prerelease`              | Include prereleases                                                  |
+| `token`                   | GitLab/Forgejo or GHES token; GitHub API hosts use mise's HTTP token |
 
 ## JDK and runtime options
 

@@ -5,22 +5,6 @@ local util = require("util")
 
 local M = {}
 
-function M.mkdir(path)
-    if RUNTIME.osType == "windows" then
-        cmd.exec('if not exist "%DIR%" mkdir "%DIR%"', { env = { DIR = path } })
-    else
-        cmd.exec('mkdir -p "$DIR"', { env = { DIR = path } })
-    end
-end
-
-function M.remove(path)
-    if RUNTIME.osType == "windows" then
-        cmd.exec('if exist "%DIR%" rmdir /s /q "%DIR%"', { env = { DIR = path } })
-    else
-        cmd.exec('rm -rf -- "$DIR"', { env = { DIR = path } })
-    end
-end
-
 function M.chmod(path)
     if RUNTIME.osType ~= "windows" then
         cmd.exec('chmod 755 "$FILE"', { env = { FILE = path } })
@@ -81,7 +65,9 @@ local function class_exists(root, class_name)
 end
 
 function M.inspect_jar(jar, scratch, wanted_class)
-    M.remove(scratch)
+    if file.exists(scratch) then
+        file.remove(scratch, { recursive = true })
+    end
     local zip = jar .. ".zip"
     os.remove(zip)
     local moved = false
@@ -113,7 +99,9 @@ function M.inspect_jar(jar, scratch, wanted_class)
         wanted_class = wanted_class,
         wanted_class_exists = class_exists(scratch, wanted_class),
     }
-    M.remove(scratch)
+    if file.exists(scratch) then
+        file.remove(scratch, { recursive = true })
+    end
     return result
 end
 

@@ -8,7 +8,7 @@ function PLUGIN:BackendInstall(ctx)
     local spec = jar.spec(ctx)
     local version = ctx.version
     local install_path = ctx.install_path
-    jar.mkdir(install_path)
+    file.mkdir(install_path)
     local command = jar.command(ctx, spec)
 
     if spec.maven then

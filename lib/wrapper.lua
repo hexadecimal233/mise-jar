@@ -39,7 +39,7 @@ end
 
 function M.write_wrapper(ctx, install_path, command, jar_path, main_class, from_manifest)
     local bin_dir = file.join_path(install_path, "bin")
-    artifact.mkdir(bin_dir)
+    file.mkdir(bin_dir)
     local jar_rel = jar_path:sub(#install_path + 2)
     local jar_unix = jar_rel:gsub("\\", "/")
     local jar_win = jar_rel:gsub("/", "\\")
@@ -128,7 +128,7 @@ end
 
 function M.install_direct_jar(ctx, spec, command, download, filename)
     local lib_dir = file.join_path(ctx.install_path, "lib")
-    artifact.mkdir(lib_dir)
+    file.mkdir(lib_dir)
     file.move(download, file.join_path(lib_dir, filename))
     local jar_path, main_class, from_manifest = artifact.resolve_jar(ctx, ctx.install_path, spec)
     M.write_wrapper(ctx, ctx.install_path, command, jar_path, main_class, from_manifest)
