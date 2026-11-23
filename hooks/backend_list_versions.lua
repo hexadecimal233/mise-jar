@@ -1,4 +1,5 @@
 local jar = require("jar")
+local git_releases = require("git_releases")
 
 function PLUGIN:BackendListVersions(ctx)
     local spec = jar.spec(ctx)
@@ -9,8 +10,14 @@ function PLUGIN:BackendListVersions(ctx)
     local prefix = jar.version_prefix(ctx, spec)
     local include_prerelease = jar.truthy(jar.opt(ctx, "prerelease"), false)
     local versions = {}
+    local releases = git_releases.list({
+        provider = jar.forge(ctx, spec),
+        repo = spec.repo,
+        api_url = jar.api_url(ctx, spec),
+        token = jar.opt(ctx, "token"),
+    })
 
-    for _, release in ipairs(jar.list_releases(ctx, spec)) do
+    for _, release in ipairs(releases) do
         local assets = release.assets
         local has_assets = type(assets) == "table" and #assets > 0
         if not release.draft and has_assets and (include_prerelease or not release.prerelease) then

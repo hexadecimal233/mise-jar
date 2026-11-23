@@ -2,6 +2,7 @@ local http = require("http")
 local file = require("file")
 local archiver = require("archiver")
 local jar = require("jar")
+local git_releases = require("git_releases")
 
 function PLUGIN:BackendInstall(ctx)
     local spec = jar.spec(ctx)
@@ -19,15 +20,36 @@ function PLUGIN:BackendInstall(ctx)
         return {}
     end
 
-    local release = jar.find_release(ctx, spec, version)
-    local asset = jar.select_asset(ctx, spec, release, version)
+    local provider = jar.forge(ctx, spec)
+    local api_url = jar.api_url(ctx, spec)
+    local token = jar.opt(ctx, "token")
+    local release = git_releases.find({
+        provider = provider,
+        repo = spec.repo,
+        version = version,
+        tag_prefix = jar.version_prefix(ctx, spec),
+        api_url = api_url,
+        token = token,
+    })
+    local asset = git_releases.select_asset({
+        release = release,
+        pattern = jar.opt(ctx, "asset") or jar.opt(ctx, "asset_pattern") or spec.asset,
+        matching = jar.opt(ctx, "matching"),
+        version = version,
+    })
 
     if asset.name:find("[/\\]") or asset.name == "." or asset.name == ".." then
         error("refusing unsafe asset name: " .. asset.name)
     end
 
     local download = file.join_path(ctx.download_path, asset.name)
-    http.download_file({ url = asset.browser_download_url }, download)
+    git_releases.download_asset({
+        provider = provider,
+        api_url = api_url,
+        token = token,
+        asset = asset,
+        path = download,
+    })
     jar.verify(ctx, release, asset, download)
 
     if asset.name:lower():sub(-4) == ".jar" then

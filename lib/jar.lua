@@ -1,6 +1,6 @@
 local M = {}
 
-for _, name in ipairs({ "util", "spec", "maven", "checksum", "releases", "artifact", "wrapper" }) do
+for _, name in ipairs({ "util", "spec", "maven", "checksum", "git_releases", "artifact", "wrapper" }) do
     local module = require(name)
     for key, value in pairs(module) do
         M[key] = value
