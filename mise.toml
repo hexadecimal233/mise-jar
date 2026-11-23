@@ -1,0 +1,15 @@
+[env]
+MISE_USE_VERSIONS_HOST = "0"
+
+[tools]
+lua = "5.4"
+lua-language-server = "latest"
+stylua = "latest"
+
+[tasks.format]
+description = "Format Lua scripts"
+run = "stylua metadata.lua hooks/ lib/"
+
+[tasks.lint]
+description = "Lint Lua scripts "
+run = "lua-language-server --check ."
