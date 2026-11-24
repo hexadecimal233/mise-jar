@@ -1,6 +1,6 @@
 PLUGIN = { -- luacheck: ignore
     name = "jar",
-    version = "0.1.0",
+    version = "0.1.1",
     description = "Install executable JARs from GitHub/GitLab/Forgejo/Maven and wrap them",
     author = "hexadecimal233",
     license = "MIT",
