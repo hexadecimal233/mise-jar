@@ -361,7 +361,7 @@ function M.select_asset(opts)
         elseif #matches == 0 then
             error("asset pattern '" .. pattern .. "' matched none of:\n  " .. table.concat(asset_names(assets), "\n  "))
         else
-            ambiguous("release asset", asset_names(matches), "Set pattern to one exact name (or a narrower glob).")
+            ambiguous("release asset", asset_names(matches), "Set asset to one exact name (or a narrower glob).")
         end
     end
 
@@ -389,11 +389,11 @@ function M.select_asset(opts)
     if #jars == 1 then
         return jars[1]
     elseif #jars > 1 then
-        ambiguous("JAR asset", asset_names(jars), 'Set pattern = "the-one.jar".')
+        ambiguous("JAR asset", asset_names(jars), 'Set asset = "the-one.jar".')
     elseif #archives == 1 then
         return archives[1]
     elseif #archives > 1 then
-        ambiguous("archive asset", asset_names(archives), 'Set pattern = "the-one.zip".')
+        ambiguous("archive asset", asset_names(archives), 'Set asset = "the-one.zip".')
     end
 
     error("no .jar or supported archive asset:\n  " .. table.concat(asset_names(assets), "\n  "))
